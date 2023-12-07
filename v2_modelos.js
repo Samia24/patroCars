@@ -6,8 +6,9 @@ import { bubbleSort } from './funcoes_gerais.js';
 import {readFileSync, writeFileSync} from 'fs';
 import { ulid } from "ulidx";
 
-
+//Função para adicionar um novo modelo de veículo
 export function adicionar_modelo(lista_de_modelos, lista_de_montadoras){
+    //Mostra as montadoras filtrando por propriedade para escolher em qual montadora deseja cadastrar o modelo
     const montadora = filtrar_indice(lista_de_montadoras)
     clear_screen()
     print(`\n>>> DADOS DO MODELO DO VEÍCULO <<<`)
@@ -21,16 +22,19 @@ export function adicionar_modelo(lista_de_modelos, lista_de_montadoras){
         turbo: obter_boolean('Turbo (S - sim ou N - nao): '), 
         automatico: obter_boolean('Automatico (S - sim ou N - nao): ')
     }
+    //Coloca no vetor global, os modelos recém adicionados
     lista_de_modelos.push(dados)
 }
 
+//Carrega os registros do arquivo separando-os em linhas
 export function load_modelos(){
     const vetor = []
     const conteudo = readFileSync('modelos.txt', 'utf-8')
     const linhas = conteudo.split('\n')
-
+    //Cada registro é separado por '|'
     for(const linha of linhas){
         const valores = linha.split('|')
+        //Verifica a quantidade de propriedades existentes de cada registro
         if (valores.length === 8) {
             const id = valores[0]
             const modelo = valores[1]
@@ -40,22 +44,26 @@ export function load_modelos(){
             const motorizacao = valores[5]
             const turbo = valores[6]
             const automatico = valores[7]
-
+            //Armazena essas propriedades em um vetor
             vetor.push({ id, modelo, montadora_id, montadora_nome, valor, motorizacao, turbo, automatico })
         }
     }
     return vetor
 }
 
+//Função para salvar os dados no arquivo txt
 export function salvar_modelos(vetor) {
     let arquivo = ''
     for(let registro of vetor){
+        //Adiciona em cada propriedade/chave o valor informado
         const conteudo = `${registro.id}|${registro.modelo}|${registro.montadora_id}|${registro.montadora_nome}|${registro.valor}|${registro.motorizacao}|${registro.turbo}|${registro.automatico}\n`
         arquivo += conteudo
     }
+    //Escreve o conteúdo do 'arquivo' no arquivo 'modelos.txt' 
     writeFileSync('modelos.txt', arquivo, 'utf-8')
 }
 
+//Função para pedir propriedade e ordem e validá-las
 export function pedir_dados_listagem_modelos(){
     print('\n>> LISTAGEM MODELOS DE VEÍCULOS <<')
     let valor_correto = false
@@ -75,16 +83,28 @@ export function pedir_dados_listagem_modelos(){
     return {propriedade, ordem}
 }
 
+/*Função para listar os modelos cadastrados
+Parâmetros: 
+vetor: contendo os modelos cadastrados
+valor: que imprime a palavra 'Modelo'
+funcao: print_modelos, para imprimir os modelos contidos no vetor
+*/
 export function listar_modelos(vetor, valor, funcao){
+    //Verifica se o vetor está vazio
     if(vetor.length > 0){
+        //Pede a propriedade e a ordem que deseja listar
         const dados = pedir_dados_listagem_modelos()
+        //Ordena o vetor
         const vetor_ordenado = bubbleSort(vetor, dados.propriedade, dados.ordem)
+        //Imprime o vetor ordenado
         funcao(vetor_ordenado)
+    //Se o vetor estiver vazio, mostra a msg
     }else{
         print(`\n> Nenhum(a) ${valor} cadastrado(a)!`)
     }
 }
 
+//Função que imprime o vetor modelos 
 export function print_modelos(modelos_ordenados){
     enter_to_continue()
     print(`\n>>> MODELOS DE VEÍCULOS <<<`)
@@ -94,26 +114,32 @@ export function print_modelos(modelos_ordenados){
         print(`   Modelo: ${modelos_ordenados[i].modelo}`)
         print(`   ID Montadora: ${modelos_ordenados[i].montadora_id}`)
         print(`   Nome Montadora: ${modelos_ordenados[i].montadora_nome}`)
+        //Como valores numéricos são carregados do documento com string, faz-se a conversão para ordenar corretamente
         print(`   Valor de Ref.: R$ ${Number(modelos_ordenados[i].valor).toFixed(2)}`)
         print(`   Motorizacao (cilindradas): ${Number(modelos_ordenados[i].motorizacao).toFixed(1)}`)
+        //Substitui o valor da string 'true' para 'Sim', se ele for turbo e 'Não' se o inverso.
         print(`   Turbo: ${modelos_ordenados[i].turbo ? 'Sim':'Nao'}`)
+        //O mesmo é feito para automático
         print(`   Automático: ${modelos_ordenados[i].automatico ? 'Sim':'Nao'}`)
         print('---------------------------')
     }
-
+    //Mostra a quantidade de modelos cadastrados
     print(`\n>>> Status: Temos ${modelos_ordenados.length} modelo(s) cadastrado(s)! <<<`)
 }
 
+//Filtra por propriedade
 export function filtrar_modelo(nome_modelo){
     let modelos_filtrados = []
     for(let registro of lista_de_modelos){
+        //Verifica em cada registro se contém o valor informado da sua respectiva propriedade
         if(contem_valor(nome_modelo, registro.modelo)){
+            //Armazena em um vetor os modelos filtrados
             modelos_filtrados.push(registro)
         }
     }
     return modelos_filtrados
 }
-
+//Filtra da mesma forma que o anterior, mudando apenas a propriedade
 export function filtrar_montadora(nome_montadora){
     let montadoras_filtradas = []
     for(let registro of lista_de_modelos){
@@ -144,17 +170,21 @@ export function filtrar_motorizacao(motor){
     return modelos_filtrados
 }
 
+//Função para filtrar os modelos
 export function filtrar_modelos_veiculos(modelos){
+    //Verifica se há modelos cadastrados
     if(modelos.length > 0){
-
+        //Pede a propriedade e ordem desejada
         let dados = pedir_dados_listagem_modelos()
+        //Pede o valor a se buscar
         let valor = obter_texto('Informe o valor que deseja buscar: ')
         let lista_modelos_filtrados = []
         let resultado = false
-        
+        //Loop de validação da propriedade
         while(resultado != true){
-            
+            //Verifica se a propriedade do vetor coincide com a informada
             if(dados.propriedade === 'modelo'){
+                //Armazena os modelos filtrados com base no valor desejado em um vetor
                 lista_modelos_filtrados = filtrar_modelo(valor)
                 resultado = true
                 
@@ -175,26 +205,32 @@ export function filtrar_modelos_veiculos(modelos){
                 valor = obter_texto('Informe o valor que deseja buscar: ')
             }
         }   
-    
+        //Ordena e imprime o vetor de modelos
         const modelos_ordenados = bubbleSort(lista_modelos_filtrados, dados.propriedade, dados.ordem)
         print_modelos(modelos_ordenados)
     }else{
+        //Quando o vetor for <= 0
         print('\n> Nenhum Modelo cadastrado!')
     }
 
 }
 
+//Função para remover um modelo
 export function remover_modelo(modelos){
+    //Lista os modelos para o usuário escolher 1 pra remover, pelo índice
     listar_modelos(modelos, 'Modelo', print_modelos)
     let indice_usuario = obter_numero('\nInforme o numero do modelo que deseja remover: ')
     let indice = indice_usuario - 1
     let encontrado = false
-
+    //Loop de validação do índice
     while(encontrado != true){
+        //Verifica se esse índice existe no vetor
         if(indice >= 0 && indice < modelos.length){
+            //Remove 1 modelo da lista de modelos, com base no índice informado
             modelos.splice(indice, 1)
             encontrado = true
         }else{
+            //Se o índice for inválido, pede novamente
             print('\nÍndice não encontrado ou inválido!')
             indice_usuario = obter_numero('\nInforme o numero do modelo que deseja remover: ')
             indice = indice_usuario - 1
@@ -202,24 +238,29 @@ export function remover_modelo(modelos){
     }
     clear_screen()
     print(`\n> Modelo ${indice_usuario} removido com sucesso!`)
+    //Retorna o vetor com o registro removido
     return modelos
 }
-
+//Função para editar modelos
 export function atualizar_modelos(modelos){
+    //Lista os modelos com base na propriedade e ordem desejadas
     listar_modelos(modelos, 'Modelos', print_modelos)
+    //Pede o indice referente ao modelo que deseja editar
     let indice_usuario = obter_numero('\nInforme o numero do Modelo que deseja alterar: ')
     let indice = indice_usuario - 1
     let encontrado = false
     clear_screen()
     print(`\n>> Atualização do Modelo ${indice_usuario} <<\n`)
-
+    //Loop de validação do índice
     while(encontrado != true){
+        //Se o índice estiver no comprimento do vetor
         if(indice >= 0 && indice < modelos.length){
             let dado_correto = false
             let propriedade
-            
+            //Loop de validação da propriedade
             while(dado_correto != true){
                 propriedade = obter_texto('\nInforme o nome da propriedade que deseja alterar (modelo, valor, montadora_nome, motorizacao, turbo, automatico): ').toLowerCase()
+                //Preenche as propriedades com os novos valores
                 if(propriedade === 'modelo'){
                     modelos[indice].modelo = obter_texto(`Informe o novo nome do Modelo: `)
                     dado_correto = true
@@ -228,13 +269,16 @@ export function atualizar_modelos(modelos){
                     dado_correto = true
                 }else if(propriedade === 'montadora_nome'){
                     clear_screen()
+                    //Filtra a montadora com o índice informado para preencher
                     const montadora = filtrar_indice(lista_de_montadoras)
+                    // Atribui o nome da montadora ao campo 'montadora_nome' no registro correspondente no vetor modelos
                     modelos[indice].montadora_nome = montadora.nome
                     dado_correto = true
                 }else if(propriedade === 'motorizacao'){
                     modelos[indice].motorizacao = obter_numero(`Informe a nova motorizacao: `)
                     dado_correto = true
                 }else if(propriedade === 'turbo'){
+                    //A função obter_boolean converte a string para um valor booleano
                     modelos[indice].turbo = obter_boolean('Turbo (S - sim ou N - nao): ')
                     dado_correto = true
                 }else if(propriedade === 'automatico'){
@@ -254,9 +298,11 @@ export function atualizar_modelos(modelos){
     }
     clear_screen()
     print(`\n> Modelo ${indice_usuario} alterado com sucesso!`)
+    //Retorna o vetor sem os modelos removidos
     return modelos
 }
 
+//Filtra o modelo com base no indice informado
 export function filtrar_indice_modelos(modelos){
     listar_modelos(modelos, 'Modelo', print_modelos)
     let encontrado = false
