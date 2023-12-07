@@ -124,24 +124,26 @@ export function atualizar_montadoras(montadoras){
 }
 //Função para filtrar com base no índice escolhido pelo usuário
 export function filtrar_indice(montadoras){
+
     //Lista as montadoras, se houver
     listar_vetor(montadoras, 'Montadora', print_montadoras)
     let encontrado = false
     //Loop de validação do índice no vetor
     while(encontrado != true){
-        let indice_usuario = obter_numero('Informe o numero da Montadora: ')
-        let indice = indice_usuario - 1
-        //Verifica se o índice está no comprimento do vetor
-        if(indice >= 0 && indice < montadoras.length){
-            encontrado = true
-            //Retorna a montadora cadastrada no índice informado
-            return montadoras[indice]
-        }else{
-            //Caso o índice não existir no vetor, ele inicia o loop novamente
-            print('\nIndice nao encontrado ou invalido!')
-        }
+            let indice_usuario = obter_numero('Informe o numero da Montadora: ')
+            let indice = indice_usuario - 1
+            //Verifica se o índice está no comprimento do vetor
+            if(indice >= 0 && indice < montadoras.length){
+                encontrado = true
+                //Retorna a montadora cadastrada no índice informado
+                return montadoras[indice]
+            }else{
+                //Caso o índice não existir no vetor, ele inicia o loop novamente
+                print('\nIndice nao encontrado ou invalido!')
+            }
+            
+        clear_screen()
     }
-    clear_screen()
 }
 
 //Função para filtrar com base no nome da montadora ou parte dele, que é o valor buscado

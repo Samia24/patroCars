@@ -7,24 +7,46 @@ import {readFileSync, writeFileSync} from 'fs';
 import { ulid } from "ulidx";
 
 //Função para adicionar um novo modelo de veículo
-export function adicionar_modelo(lista_de_modelos, lista_de_montadoras){
+export function adicionar_modelo(lista_de_modelos, lista_de_montadoras) {
     //Mostra as montadoras filtrando por propriedade para escolher em qual montadora deseja cadastrar o modelo
-    const montadora = filtrar_indice(lista_de_montadoras)
-    clear_screen()
-    print(`\n>>> DADOS DO MODELO DO VEÍCULO <<<`)
-    let dados = {
-        id: ulid(),
-        modelo: obter_texto('Nome: '),
-        montadora_id: montadora.id,
-        montadora_nome: montadora.nome,
-        valor: obter_numero('Valor referencia: ').toFixed(2),
-        motorizacao: obter_numero('Motorizacao (potencia ou cilindradas): ').toFixed(1), 
-        turbo: obter_boolean('Turbo (S - sim ou N - nao): '), 
-        automatico: obter_boolean('Automatico (S - sim ou N - nao): ')
+    if (lista_de_montadoras.length > 0) {
+        listar_vetor(lista_de_montadoras, 'Montadora', print_montadoras)
+        
+        let indice_usuario_montadora = obter_numero('\nNúmero da montadora que deseja cadastrar o modelo: ')
+        let indice_montadora = indice_usuario_montadora - 1
+        
+        let indice_correto = false
+
+        while(indice_correto != true) {
+            if(indice_montadora >= 0 && indice_montadora < lista_de_montadoras.length) {
+                clear_screen()
+                print(`\n>>> DADOS DO MODELO DO VEÍCULO <<<`)
+                let dados = {
+                    id: ulid(),
+                    modelo: obter_texto('Nome: '),
+                    montadora_id: lista_de_montadoras[indice_montadora].id,
+                    montadora_nome: lista_de_montadoras[indice_montadora].nome,
+                    valor: obter_numero('Valor referência: ').toFixed(2),
+                    motorizacao: obter_numero('Motorização (potência ou cilindradas): ').toFixed(1),
+                    turbo: obter_boolean('Turbo (S - sim ou N - não): '),
+                    automatico: obter_boolean('Automático (S - sim ou N - não): ')
+                }
+                
+                //Coloca no vetor global os modelos recém adicionados
+                lista_de_modelos.push(dados)
+                indice_correto = true
+            }else{
+                //Caso o índice não exista no vetor, informa ao usuário e solicita novamente
+                print('\nÍndice não encontrado ou inválido!')
+                indice_usuario_montadora = obter_numero('\nNúmero da montadora que deseja cadastrar o modelo: ')
+                indice_montadora = indice_usuario_montadora - 1
+            }
+        }
+    }else{
+        print('\n> Não há montadoras cadastradas. Cadastre uma montadora primeiro.')
     }
-    //Coloca no vetor global, os modelos recém adicionados
-    lista_de_modelos.push(dados)
 }
+
 
 //Carrega os registros do arquivo separando-os em linhas
 export function load_modelos(){
@@ -302,7 +324,7 @@ export function atualizar_modelos(modelos){
     return modelos
 }
 
-//Filtra o modelo com base no indice informado
+//Filtra o modelo com base no indice
 export function filtrar_indice_modelos(modelos){
     listar_modelos(modelos, 'Modelo', print_modelos)
     let encontrado = false
